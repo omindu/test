@@ -1,11 +1,13 @@
-name: Java CI
+name: Java 1.8
 
-on: [pull_request]
-   
+on:
+   pull_request:
+      branches:
+         - master
 jobs:
   build:
-    name: Test on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build on ${{matrix.os}}
+    runs-on: ${{matrix.os}}
     strategy:
       matrix:
          os: [ubuntu-18.04, windows-2019, macOS-10.14]
@@ -20,4 +22,3 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn clean install
-
