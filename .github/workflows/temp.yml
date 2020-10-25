@@ -21,5 +21,4 @@ jobs:
     - name: Run PR builder
       env:
         PR_LINK: ${{github.event.inputs.version}}
-    - name: Print Input
       run: echo Running the PR builder for PR - $PR_LINK
