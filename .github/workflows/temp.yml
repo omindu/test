@@ -14,7 +14,8 @@ on:
 jobs:   
   build:
     runs-on: ubuntu-latest
-    
+    env:
+      MY_VAL: ${{ github.event.inputs.version }}
     steps:
     - name: Print Input
       run: echo Running the PR builder for PR ${{ github.event.inputs.version }}
@@ -23,7 +24,7 @@ jobs:
       env:
         PR_LINK: ${{ github.event.inputs.version }}
     - name: Hello world
-      run: echo "Hello world $env:FIRST_NAME ${middle_name} $env:Last_Name! ${PR_LINK}"
+      run: echo "Hello world $env:FIRST_NAME ${middle_name} $env:Last_Name! Val- ${MY_VAL}"
       env:
         FIRST_NAME: Mona
         middle_name: The
