@@ -8,6 +8,7 @@ USER=$(echo $PR_LINK | awk -F'/' '{print $4}')
 REPO=$(echo $PR_LINK | awk -F'/' '{print $5}')
 PULL_NUMBER=$(echo $PR_LINK | awk -F'/' '{print $7}')
 PR_LINK=${PR_LINK%/}
+echo "Trimmed $PR_LINK"
 
 # ::set-output name={name}::{value}
 
