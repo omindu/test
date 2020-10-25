@@ -1,30 +1,76 @@
-# This is a basic workflow to help you get started with Actions
+name: pr-builder
 
-name: test1
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Enter PR link (ex: https://github.com/wso2-extensions/identity-inbound-auth-oauth/pull/1481/)"
+      pr:
+        description: "Enter PR link (ex: https://github.com/wso2-extensions/identity-inbound-auth-oauth/pull/1481)"
         default: 
         required: true
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:   
   build:
     runs-on: ubuntu-latest
     
     steps:
     - name: Print Input
-      run: echo Running the PR builder for PR - ${{ github.event.inputs.version }}
+      run: echo Running the PR builder for PR - ${{ github.event.inputs.pr }}
+    - name: Build init
+      run: |
+        wget -c https://raw.githubusercontent.com/wso2/product-is/master/pom.xml -O cache-key-file.xml
+    - name: Cache maven packages
+      id: cache-maven-m2
+      uses: actions/cache@v2
+      with:
+       path: ~/.m2
+       key: ${{ runner.os }}-pr-builder-${{ hashFiles('cache-key-file.xml') }}
+       restore-keys: |
+         ${{ runner.os }}-pr-builder-
+         ${{ runner.os }}-pr-builder
     - name: Run PR builder
-      id: my_id
+      id: builder_step
       env:
-        PR_LINK: ${{github.event.inputs.version}}
+        PR_LINK: ${{github.event.inputs.pr}}
       run: |
         wget https://raw.githubusercontent.com/omindu/test/master/builder.sh
         bash builder.sh
-    - name: Print Outout
-      run: echo Reading ${REPO} And ${{steps.my_id.outputs.REPON}} values
+    - name: Archive PR diff file
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: repo-pr-diff
+        path: |
+          ${{steps.builder_step.outputs.REPO_NAME}}/diff.diff
+        if-no-files-found: warn
+    - name: Archive repo mvn build log
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: repo-mvn-build-log
+        path: |
+          ${{steps.builder_step.outputs.REPO_NAME}}/mvn-build.log
+        if-no-files-found: warn
+    - name: Archive repo surefire reports
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: repo-surefire-report
+        path: |
+          ${{steps.builder_step.outputs.REPO_NAME}}/**/surefire-reports
+        if-no-files-found: warn
+    - name: Archive product-is mvn build log
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: product-is-mvn-build-log
+        path: |
+          product-is/mvn-build.log
+        if-no-files-found: warn
+    - name: Archive product-is surefire reports
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: product-is-surefire-report
+        path: |
+          product-is/**/surefire-reports
+        if-no-files-found: warn
