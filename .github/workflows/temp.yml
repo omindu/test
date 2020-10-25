@@ -21,5 +21,11 @@ jobs:
     - name: Run PR builder
       run: echo Env Value $PR_LINK
       env:
-        PR_LINK: ${{github.event.inputs.version}}
+        PR_LINK: ${{ github.event.inputs.version }}
+    - name: Hello world
+      run: echo Hello world $FIRST_NAME $middle_name $Last_Name! $PR_LINK
+      env:
+        FIRST_NAME: Mona
+        middle_name: The
+        Last_Name: Octocat
 
